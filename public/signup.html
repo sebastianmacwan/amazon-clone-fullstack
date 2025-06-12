@@ -72,7 +72,7 @@
       const email = document.getElementById("signupEmail").value.trim().toLowerCase();
       const password = document.getElementById("signupPassword").value;
 
-     fetch('https://amazon-clone-fullstack.onrender.com/api/signup', {
+     fetch('https://amazon-clone-fullstack.onrender.com/signup', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),
