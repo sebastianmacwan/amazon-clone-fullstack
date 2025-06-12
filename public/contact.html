@@ -203,7 +203,8 @@
         statusDiv.className = "";
 
         try {
-          const res = await fetch("http://localhost:5000/send_mail", {
+          const res = await fetch("https://amazon-clone-fullstack.onrender.com/api/send_mail", {
+
             method: "POST",
             body: formData
           });

@@ -160,7 +160,8 @@
       e.preventDefault();
       const user = JSON.parse(localStorage.getItem("currentUser"));
       const newEmail = document.getElementById("newEmail").value;
-      const res = await fetch("http://localhost:5000/api/user/update-email", {
+    const res = await fetch("https://amazon-clone-fullstack.onrender.com/api/user/update-password", {
+  
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: user.id, newEmail })
