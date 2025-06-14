@@ -26,12 +26,13 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      /* background-image: linear-gradient(to right, #11cb43, #2575fc, #9ccb11); */
       background-image: url('https://images.pexels.com/photos/325153/pexels-photo-325153.jpeg?auto=compress&cs=tinysrgb&w=1600');
-
       background-size: 700px;
       animation: moveGradient 15s ease-in-out infinite;
       padding: 20px;
+      /* Ensure body is always white for consistency */
+      background-color: #fff !important;
+      color: #000 !important;
     }
 
     @keyframes moveGradient {
@@ -133,21 +134,19 @@
 
 <body>
   <div class="contact-container">
-       <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
-        <a class="navbar-brand" href="index.html"><button>Home</button></a>
-        <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase "
-            style="color: #fff; font-weight: bold;">
-            <!-- Username or empty -->
-        </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
-                <!-- Content will be injected by JS -->
-            </ul>
-        </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+      <a class="navbar-brand" href="index.html"><button>Home</button></a>
+      <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase "
+        style="color: #fff; font-weight: bold;">
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
+        </ul>
+      </div>
     </nav>
     <h1>Contact Us</h1>
     <form id="contactForm" enctype="multipart/form-data">
@@ -170,409 +169,195 @@
       <div id="status"></div>
     </form>
   </div>
-
   <script>
-    // function redirectToLogin() {
-    //   alert("⚠️ Please login to use the contact form.");
-    //   window.location.href = "login.html";
-    // }
+    const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com'; // Backend base URL
 
-    // let user;
-    // try {
-    //   user = JSON.parse(localStorage.getItem("currentUser"));
-    // } catch (err) {
-    //   user = null;
-    // }
-
-    // const nameInput = document.getElementById("name");
-    // const emailInput = document.getElementById("email");
-    // const contactForm = document.getElementById("contactForm");
-    // const statusDiv = document.getElementById("status");
-
-    // if (!user || !nameInput || !emailInput || !contactForm) {
-    //   redirectToLogin();
-    // } else {
-    //   nameInput.value = user.username || "";
-    //   emailInput.value = user.email || "";
-
-    //   contactForm.addEventListener("submit", async function (e) {
-    //     e.preventDefault();
-
-    //     const formData = new FormData(contactForm);
-    //     statusDiv.innerText = "";
-    //     statusDiv.className = "";
-
-    //     try {
-    //       const res = await fetch("https://amazon-clone-fullstack.onrender.com/send_mail", {
-
-    //         method: "POST",
-    //         body: formData
-    //       });
-
-    //       const data = await res.json();
-
-    //       if (res.ok) {
-    //         statusDiv.innerText = "✅ Message sent successfully!";
-    //         statusDiv.className = "success";
-    //         contactForm.reset();
-
-    //         nameInput.value = user.username;
-    //         emailInput.value = user.email;
-
-    //         setTimeout(() => {
-    //           window.location.href = "index.html";
-    //         }, 2000);
-    //       } else {
-    //         statusDiv.innerText = `❌ ${data.message || "Failed to send message."}`;
-    //         statusDiv.className = "error";
-    //       }
-    //     } catch (err) {
-    //       console.error("Send Error:", err);
-    //       statusDiv.innerText = "❌ Network error. Please try again.";
-    //       statusDiv.className = "error";
-    //     }
-    //   });
-    // }
-        const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com'; // Backend base URL
-
-    // DOM elements (Ensuring messageBox is targeted correctly)
+    // DOM elements
     const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
     const contactForm = document.getElementById("contactForm");
-    const messageBox = document.getElementById("messageBox"); // This is your global message box in the top-right
-    const formStatusDiv = document.getElementById("formStatus"); // NEW: Element for form-specific messages
-    
-    // Elements for navbar consistency (assuming they exist in the HTML)
+    const formStatusDiv = document.getElementById("status");
+
+    // Elements for navbar consistency
     const cartCountEl = document.getElementById("cart-count");
     const navLinks = document.getElementById("nav-links");
     const userNameContainer = document.getElementById("user-name-container");
 
     let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 
-    // --- Helper function to display messages instead of alert() ---
-    // This function now uses the new 'formStatusDiv' for form-specific messages,
-    // but keeps the global 'messageBox' for other general alerts (like "Please login").
+    // --- Helper function to display messages ---
     function showMessage(message, type = 'success', targetElement = formStatusDiv) {
-        if (!targetElement) {
-            console.error("Target message element not found.");
-            console.log(`Message (${type}): ${message}`);
-            return;
-        }
+      if (!targetElement) {
+        console.error("Target message element not found.");
+        console.log(`Message (${type}): ${message}`);
+        return;
+      }
 
-        targetElement.textContent = message;
-        targetElement.className = `alert alert-${type === 'success' ? 'success' : 'danger'} text-center mt-3`; // Bootstrap alert classes
-        if (type === 'info') { // Handle 'info' type specifically for the global messageBox
-            targetElement.classList.remove('alert-success', 'alert-danger');
-            targetElement.classList.add('alert-info');
-        }
-        targetElement.style.display = 'block';
+      targetElement.textContent = message;
+      targetElement.className = type;
+      targetElement.style.display = 'block';
 
-        setTimeout(() => {
-            targetElement.style.display = 'none';
-            targetElement.textContent = ''; // Clear text
-            // Remove all alert-related classes to reset
-            targetElement.classList.remove('alert-success', 'alert-danger', 'alert-info', 'alert-warning');
-        }, 3000); // Hide after 3 seconds
+      setTimeout(() => {
+        targetElement.style.display = 'none';
+        targetElement.textContent = ''; // Clear text
+        targetElement.classList.remove('success', 'error'); // Remove status classes
+      }, 3000); // Hide after 3 seconds
     }
 
-
-    // --- Function to redirect to login, now using showMessage ---
+    // --- Function to redirect to login ---
     function redirectToLogin() {
-        // This will still use the global messageBox as it's a page-level redirect alert
-        showMessage("Please login to use the contact form.", "info", messageBox); 
-        setTimeout(() => {
-            window.location.href = "/login.html"; // FIX: Changed to root-relative path
-        }, 1500); // Redirect after message is displayed for a moment
+      showMessage("⚠️ Please login to use the contact form.", "error", formStatusDiv);
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500); // Redirect after message is displayed for a moment
     }
 
-    // --- Mode toggle function (consistent with other pages) ---
-    function mode() {
-        const body = document.body;
-        let currentTheme = localStorage.getItem('theme') || 'light';
-        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        if (newTheme === 'dark') {
-            body.classList.add('dark-mode');
-            body.classList.remove('bg-white', 'text-dark');
-        } else {
-            body.classList.remove('dark-mode');
-            body.classList.add('bg-white', 'text-dark');
-        }
-        localStorage.setItem('theme', newTheme);
-        updateElementStylesForMode(newTheme);
-    }
-
-    // Function to apply/remove specific element styles based on theme (copied for consistency)
-    function updateElementStylesForMode(theme) {
-        const navbar = document.querySelector('.navbar');
-        const footer = document.querySelector('.footer');
-        const formLabels = document.querySelectorAll('.form-label');
-        const h2Element = document.querySelector('h2');
-        const formControls = document.querySelectorAll('.form-control');
-        const btnOutlineLights = document.querySelectorAll('.btn-outline-light');
-        const pElements = document.querySelectorAll('p'); // For other p tags in main/footer
-        const alertElements = document.querySelectorAll('.alert'); // To theme existing alerts
-
-        if (navbar) {
-            if (theme === 'dark') {
-                navbar.classList.remove('navbar-dark', 'bg-primary');
-                navbar.classList.add('navbar-light', 'bg-dark');
-            } else {
-                navbar.classList.remove('navbar-light', 'bg-dark');
-                navbar.classList.add('navbar-dark', 'bg-primary');
-            }
-        }
-
-        if (footer) {
-            if (theme === 'dark') {
-                footer.classList.remove('bg-dark');
-                footer.classList.add('bg-dark');
-            } else {
-                footer.classList.remove('bg-dark');
-                footer.classList.add('bg-dark');
-            }
-        }
-
-        formLabels.forEach(label => {
-            if (theme === 'dark') label.style.color = '#f8f9fa';
-            else label.style.color = '';
-        });
-        if (h2Element) {
-            if (theme === 'dark') h2Element.style.color = '#f8f9fa';
-            else h2Element.style.color = '';
-        }
-        pElements.forEach(p => { // Apply to all relevant p tags
-            if (theme === 'dark') p.style.color = '#f8f9fa';
-            else p.style.color = '';
-        });
-        formControls.forEach(input => {
-            if (theme === 'dark') {
-                input.style.backgroundColor = '#495057';
-                input.style.color = '#f8f9fa';
-                input.style.borderColor = '#6c757d';
-            } else {
-                input.style.backgroundColor = '';
-                input.style.color = '';
-                input.style.borderColor = '';
-            }
-        });
-        const hoverGreenTexts = document.querySelectorAll('.hover-green-text');
-        hoverGreenTexts.forEach(span => {
-            if (theme === 'dark') {
-                span.classList.remove('text-white');
-                span.style.color = '#f8f9fa';
-            } else {
-                span.classList.add('text-white');
-                span.style.color = '';
-            }
-        });
-        btnOutlineLights.forEach(btn => {
-            if (theme === 'dark') {
-                btn.style.color = '#f8f9fa';
-                btn.style.borderColor = '#f8f9fa';
-            } else {
-                btn.style.color = '';
-                btn.style.borderColor = '';
-            }
-        });
-
-        // Apply dark mode styles to existing alert boxes (like messageBox)
-        alertElements.forEach(alertEl => {
-            if (theme === 'dark') {
-                if (alertEl.classList.contains('alert-info')) {
-                    alertEl.style.backgroundColor = '#17a2b8';
-                    alertEl.style.color = '#fff';
-                } else if (alertEl.classList.contains('alert-success')) {
-                    alertEl.style.backgroundColor = '#28a745';
-                    alertEl.style.color = '#fff';
-                } else if (alertEl.classList.contains('alert-danger')) {
-                    alertEl.style.backgroundColor = '#dc3545';
-                    alertEl.style.color = '#fff';
-                } else if (alertEl.classList.contains('alert-warning')) {
-                    alertEl.style.backgroundColor = '#ffc107';
-                    alertEl.style.color = '#212529'; // Dark text for contrast
-                }
-            } else {
-                // Reset to default Bootstrap alert styles (which are generally fine for light mode)
-                alertEl.style.backgroundColor = '';
-                alertEl.style.color = '';
-            }
-        });
-    }
-
-    // --- Update User Name Display (copied for consistency) ---
+    // --- Update User Name Display ---
     function updateUserNameDisplay() {
-        if (currentUser && currentUser.username) {
-            userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
-        } else {
-            userNameContainer.innerHTML = "";
-        }
+      if (currentUser && currentUser.username) {
+        userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+      } else {
+        userNameContainer.innerHTML = "";
+      }
     }
 
-    // --- Helper to update cart count badge visually in navbar (copied for consistency) ---
+    // --- Helper to update cart count badge visually in navbar ---
     async function updateNavCartCount() {
-        let cartLength = 0;
-        if (currentUser && currentUser.id) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await response.json();
-                if (response.ok && data.cartItems) {
-                    cartLength = data.cartItems.length;
-                } else {
-                    console.error('Failed to get cart count for navigation:', data.message || response.statusText);
-                    cartLength = 0;
-                }
-            } catch (error) {
-                console.error('Network error getting cart count for navigation:', error);
-                cartLength = 0;
-            }
+      let cartLength = 0;
+      if (currentUser && currentUser.id) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
         }
-        if (cartCountEl) cartCountEl.textContent = cartLength;
+      }
+      if (cartCountEl) cartCountEl.textContent = cartLength;
     }
 
-    // --- Render navigation based on login state (copied for consistency) ---
+    // --- Render navigation based on login state ---
     async function renderNav() {
-        if (!navLinks) {
-            console.error("Navigation links element not found. Cannot render navigation.");
-            return;
-        }
-        navLinks.innerHTML = "";
-        let cartLength = 0;
+      if (!navLinks) {
+        console.error("Navigation links element not found. Cannot render navigation.");
+        return;
+      }
+      navLinks.innerHTML = "";
+      let cartLength = 0;
 
-        if (currentUser && currentUser.id) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await response.json();
-                if (response.ok && data.cartItems) {
-                    cartLength = data.cartItems.length;
-                } else {
-                    console.error('Failed to get cart count for navigation:', data.message || response.statusText);
-                    cartLength = 0;
-                }
-            } catch (error) {
-                console.error('Network error getting cart count for navigation:', error);
-                cartLength = 0;
-            }
-
-            navLinks.innerHTML = `
-                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="profile.html">Profile (${currentUser.username})</a></li>
-                <li class="nav-item ms-3">
-                    <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                        Cart
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            ${cartLength}
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item ms-3">
-                    <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
-                </li>`;
-        } else {
-            navLinks.innerHTML = `
-                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
-                <li class="nav-item ms-3">
-                    <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                        Cart
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            ${cartLength}
-                        </span>
-                    </a>
-                </li>`;
+      if (currentUser && currentUser.id) {
+        // Fetch cart length if user is logged in
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
         }
 
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", () => {
-                localStorage.removeItem("currentUser");
-                currentUser = null;
-                location.reload();
-            });
-        }
-        updateElementStylesForMode(localStorage.getItem('theme') || 'light');
+
+      } else {
+        navLinks.innerHTML = `
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
+                    <li class="nav-item ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                            Cart
+                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                ${cartLength}
+                            </span>
+                        </a>
+                    </li>`; // Removed mode-toggle button
+      }
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("currentUser");
+          currentUser = null;
+          location.reload();
+        });
+      }
     }
-
 
     // --- Initial Check and Form Setup ---
     if (!currentUser || !nameInput || !emailInput || !contactForm) {
-        redirectToLogin();
+      redirectToLogin();
     } else {
-        nameInput.value = currentUser.username || "";
-        emailInput.value = currentUser.email || "";
+      nameInput.value = currentUser.username || "";
+      emailInput.value = currentUser.email || "";
 
-        contactForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
+      contactForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-            // Basic client-side validation using Bootstrap's novalidate
-            if (!contactForm.checkValidity()) {
-                contactForm.classList.add("was-validated");
-                return;
+        // Basic client-side validation
+        if (!contactForm.checkValidity()) {
+          contactForm.classList.add("was-validated");
+          return;
+        }
+
+        const formData = new FormData(contactForm);
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/send_mail`, {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            showMessage(data.message || "Message sent successfully!", "success", formStatusDiv);
+            contactForm.reset();
+            contactForm.classList.remove("was-validated");
+
+            // Re-populate fields if user is still logged in
+            if (currentUser) {
+              nameInput.value = currentUser.username || "";
+              emailInput.value = currentUser.email || "";
             }
 
-            const formData = new FormData(contactForm);
-            // formData.append("name", nameInput.value); // FormData already gets inputs with name attributes
-            // formData.append("email", emailInput.value);
-            // formData.append("subject", document.getElementById("subject").value);
-            // formData.append("message", document.getElementById("message").value);
-            // const fileInput = document.getElementById("fileUpload");
-            // if (fileInput.files.length > 0) {
-            //     formData.append("file", fileInput.files[0]);
-            // }
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/send_mail`, { // Corrected endpoint
-                    method: "POST",
-                    body: formData // FormData handles Content-Type automatically for multipart/form-data
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showMessage(data.message || "Message sent successfully!", "success", formStatusDiv); // Target formStatusDiv
-                    contactForm.reset(); // Clear form
-                    contactForm.classList.remove("was-validated"); // Remove validation styles
-
-                    // Re-populate fields if user is still logged in
-                    if (currentUser) {
-                         nameInput.value = currentUser.username || "";
-                         emailInput.value = currentUser.email || "";
-                    }
-
-                    // Removed the setTimeout redirect to keep the message visible on screen
-                    // If you want to redirect after success, uncomment the line below:
-                    // setTimeout(() => { window.location.href = "index.html"; }, 2000);
-                } else {
-                    showMessage(data.message || "Failed to send message.", "error", formStatusDiv); // Target formStatusDiv
-                }
-            } catch (err) {
-                console.error("Send Error:", err);
-                showMessage("Network error. Please try again.", "error", formStatusDiv); // Target formStatusDiv
-            }
-        });
+            // --- REDIRECTION ENABLED HERE ---
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 2000); // Redirect after 2 seconds
+          } else {
+            showMessage(data.message || "Failed to send message.", "error", formStatusDiv);
+          }
+        } catch (err) {
+          console.error("Send Error:", err);
+          showMessage("Network error. Please try again.", "error", formStatusDiv);
+        }
+      });
     }
 
     // --- Initialize page on DOMContentLoaded ---
     document.addEventListener('DOMContentLoaded', async () => {
-        // Apply theme preference on load
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.add('bg-white', 'text-dark');
-        }
-        updateElementStylesForMode(savedTheme || 'light');
+      // No theme preference to apply, just ensure standard white theme
+      document.body.classList.add('bg-white', 'text-dark');
 
-        updateUserNameDisplay();
-        await updateNavCartCount();
-        await renderNav();
+      updateUserNameDisplay();
+      await updateNavCartCount();
+      await renderNav();
     });
 
   </script>

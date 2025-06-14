@@ -108,6 +108,11 @@
             <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
                 <!-- Content will be injected by JS -->
             </ul>
+            <div class="px-3">
+                <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
+
+            </div>
+
         </div>
     </nav>
 
@@ -156,7 +161,6 @@
                         <h5 class="mb-0 text-white">Contact</h5>
                     </a>
                     <p class="mt-2">Email: support@amazonclone.com</p>
-                    <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
                 </div>
             </div>
         </div>
@@ -460,7 +464,7 @@
 
 
         // Mode toggle function (consistent with other pages)
-        let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
+        let classes = ["bg-white", "bg-dark"];
         let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
         let current = 0;
         function mode() {
