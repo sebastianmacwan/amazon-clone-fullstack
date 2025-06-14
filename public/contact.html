@@ -172,67 +172,370 @@
   </div>
 
   <script>
-    function redirectToLogin() {
-      alert("⚠️ Please login to use the contact form.");
-      window.location.href = "login.html";
-    }
+    // function redirectToLogin() {
+    //   alert("⚠️ Please login to use the contact form.");
+    //   window.location.href = "login.html";
+    // }
 
-    let user;
-    try {
-      user = JSON.parse(localStorage.getItem("currentUser"));
-    } catch (err) {
-      user = null;
-    }
+    // let user;
+    // try {
+    //   user = JSON.parse(localStorage.getItem("currentUser"));
+    // } catch (err) {
+    //   user = null;
+    // }
 
+    // const nameInput = document.getElementById("name");
+    // const emailInput = document.getElementById("email");
+    // const contactForm = document.getElementById("contactForm");
+    // const statusDiv = document.getElementById("status");
+
+    // if (!user || !nameInput || !emailInput || !contactForm) {
+    //   redirectToLogin();
+    // } else {
+    //   nameInput.value = user.username || "";
+    //   emailInput.value = user.email || "";
+
+    //   contactForm.addEventListener("submit", async function (e) {
+    //     e.preventDefault();
+
+    //     const formData = new FormData(contactForm);
+    //     statusDiv.innerText = "";
+    //     statusDiv.className = "";
+
+    //     try {
+    //       const res = await fetch("https://amazon-clone-fullstack.onrender.com/send_mail", {
+
+    //         method: "POST",
+    //         body: formData
+    //       });
+
+    //       const data = await res.json();
+
+    //       if (res.ok) {
+    //         statusDiv.innerText = "✅ Message sent successfully!";
+    //         statusDiv.className = "success";
+    //         contactForm.reset();
+
+    //         nameInput.value = user.username;
+    //         emailInput.value = user.email;
+
+    //         setTimeout(() => {
+    //           window.location.href = "index.html";
+    //         }, 2000);
+    //       } else {
+    //         statusDiv.innerText = `❌ ${data.message || "Failed to send message."}`;
+    //         statusDiv.className = "error";
+    //       }
+    //     } catch (err) {
+    //       console.error("Send Error:", err);
+    //       statusDiv.innerText = "❌ Network error. Please try again.";
+    //       statusDiv.className = "error";
+    //     }
+    //   });
+    // }
+        const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com'; // Backend base URL
+
+    // DOM elements (Ensuring messageBox is targeted correctly)
     const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
     const contactForm = document.getElementById("contactForm");
-    const statusDiv = document.getElementById("status");
+    const messageBox = document.getElementById("messageBox"); // Assuming your HTML has an element with id="messageBox"
+    
+    // Elements for navbar consistency (assuming they exist in the HTML)
+    const cartCountEl = document.getElementById("cart-count");
+    const navLinks = document.getElementById("nav-links");
+    const userNameContainer = document.getElementById("user-name-container");
 
-    if (!user || !nameInput || !emailInput || !contactForm) {
-      redirectToLogin();
-    } else {
-      nameInput.value = user.username || "";
-      emailInput.value = user.email || "";
+    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 
-      contactForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const formData = new FormData(contactForm);
-        statusDiv.innerText = "";
-        statusDiv.className = "";
-
-        try {
-          const res = await fetch("https://amazon-clone-fullstack.onrender.com/send_mail", {
-
-            method: "POST",
-            body: formData
-          });
-
-          const data = await res.json();
-
-          if (res.ok) {
-            statusDiv.innerText = "✅ Message sent successfully!";
-            statusDiv.className = "success";
-            contactForm.reset();
-
-            nameInput.value = user.username;
-            emailInput.value = user.email;
-
-            setTimeout(() => {
-              window.location.href = "index.html";
-            }, 2000);
-          } else {
-            statusDiv.innerText = `❌ ${data.message || "Failed to send message."}`;
-            statusDiv.className = "error";
-          }
-        } catch (err) {
-          console.error("Send Error:", err);
-          statusDiv.innerText = "❌ Network error. Please try again.";
-          statusDiv.className = "error";
+    // --- Helper function to display messages instead of alert() ---
+    function showMessage(message, type = 'success') {
+        if (!messageBox) {
+            console.error("Message box element not found.");
+            // Fallback to console log if messageBox doesn't exist
+            console.log(`Message (${type}): ${message}`);
+            return;
         }
-      });
+        messageBox.textContent = message;
+        messageBox.className = ''; // Clear previous classes
+        messageBox.classList.add(type);
+        messageBox.style.display = 'block';
+
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+        }, 3000); // Hide after 3 seconds
     }
+
+    // --- Function to redirect to login, now using showMessage ---
+    function redirectToLogin() {
+        showMessage("Please login to use the contact form.", "info"); // Using 'info' type for a less harsh alert
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1500); // Redirect after message is displayed for a moment
+    }
+
+    // --- Mode toggle function (consistent with other pages) ---
+    function mode() {
+        const body = document.body;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+        if (newTheme === 'dark') {
+            body.classList.add('dark-mode');
+            body.classList.remove('bg-white', 'text-dark');
+        } else {
+            body.classList.remove('dark-mode');
+            body.classList.add('bg-white', 'text-dark');
+        }
+        localStorage.setItem('theme', newTheme);
+        updateElementStylesForMode(newTheme);
+    }
+
+    // Function to apply/remove specific element styles based on theme (copied for consistency)
+    function updateElementStylesForMode(theme) {
+        const navbar = document.querySelector('.navbar');
+        const footer = document.querySelector('.footer');
+        const formLabels = document.querySelectorAll('.form-label');
+        const h2Element = document.querySelector('h2');
+        const formControls = document.querySelectorAll('.form-control');
+        const btnOutlineLights = document.querySelectorAll('.btn-outline-light');
+        const pElements = document.querySelectorAll('p'); // For other p tags in main/footer
+
+        if (navbar) {
+            if (theme === 'dark') {
+                navbar.classList.remove('navbar-dark', 'bg-primary');
+                navbar.classList.add('navbar-light', 'bg-dark');
+            } else {
+                navbar.classList.remove('navbar-light', 'bg-dark');
+                navbar.classList.add('navbar-dark', 'bg-primary');
+            }
+        }
+
+        if (footer) {
+            if (theme === 'dark') {
+                footer.classList.remove('bg-dark');
+                footer.classList.add('bg-dark');
+            } else {
+                footer.classList.remove('bg-dark');
+                footer.classList.add('bg-dark');
+            }
+        }
+
+        formLabels.forEach(label => {
+            if (theme === 'dark') label.style.color = '#f8f9fa';
+            else label.style.color = '';
+        });
+        if (h2Element) {
+            if (theme === 'dark') h2Element.style.color = '#f8f9fa';
+            else h2Element.style.color = '';
+        }
+        pElements.forEach(p => { // Apply to all relevant p tags
+            if (theme === 'dark') p.style.color = '#f8f9fa';
+            else p.style.color = '';
+        });
+        formControls.forEach(input => {
+            if (theme === 'dark') {
+                input.style.backgroundColor = '#495057';
+                input.style.color = '#f8f9fa';
+                input.style.borderColor = '#6c757d';
+            } else {
+                input.style.backgroundColor = '';
+                input.style.color = '';
+                input.style.borderColor = '';
+            }
+        });
+        const hoverGreenTexts = document.querySelectorAll('.hover-green-text');
+        hoverGreenTexts.forEach(span => {
+            if (theme === 'dark') {
+                span.classList.remove('text-white');
+                span.style.color = '#f8f9fa';
+            } else {
+                span.classList.add('text-white');
+                span.style.color = '';
+            }
+        });
+        btnOutlineLights.forEach(btn => {
+            if (theme === 'dark') {
+                btn.style.color = '#f8f9fa';
+                btn.style.borderColor = '#f8f9fa';
+            } else {
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }
+        });
+    }
+
+    // --- Update User Name Display (copied for consistency) ---
+    function updateUserNameDisplay() {
+        if (currentUser && currentUser.username) {
+            userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+        } else {
+            userNameContainer.innerHTML = "";
+        }
+    }
+
+    // --- Helper to update cart count badge visually in navbar (copied for consistency) ---
+    async function updateNavCartCount() {
+        let cartLength = 0;
+        if (currentUser && currentUser.id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok && data.cartItems) {
+                    cartLength = data.cartItems.length;
+                }
+            } catch (error) {
+                console.error('Error fetching cart count:', error);
+            }
+        }
+        if (cartCountEl) cartCountEl.textContent = cartLength;
+    }
+
+    // --- Render navigation based on login state (copied for consistency) ---
+    async function renderNav() {
+        if (!navLinks) {
+            console.error("Navigation links element not found. Cannot render navigation.");
+            return;
+        }
+        navLinks.innerHTML = "";
+        let cartLength = 0;
+
+        if (currentUser && currentUser.id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok && data.cartItems) {
+                    cartLength = data.cartItems.length;
+                } else {
+                    console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+                    cartLength = 0;
+                }
+            } catch (error) {
+                console.error('Network error getting cart count for navigation:', error);
+                cartLength = 0;
+            }
+
+            navLinks.innerHTML = `
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="profile.html">Profile (${currentUser.username})</a></li>
+                <li class="nav-item ms-3">
+                    <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                        Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${cartLength}
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-item ms-3">
+                    <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
+                </li>`;
+        } else {
+            navLinks.innerHTML = `
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
+                <li class="nav-item ms-3">
+                    <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                        Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${cartLength}
+                        </span>
+                    </a>
+                </li>`;
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                localStorage.removeItem("currentUser");
+                currentUser = null;
+                location.reload();
+            });
+        }
+        updateElementStylesForMode(localStorage.getItem('theme') || 'light');
+    }
+
+
+    // --- Initial Check and Form Setup ---
+    if (!currentUser || !nameInput || !emailInput || !contactForm) {
+        redirectToLogin();
+    } else {
+        nameInput.value = currentUser.username || "";
+        emailInput.value = currentUser.email || "";
+
+        contactForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Basic client-side validation using Bootstrap's novalidate
+            if (!contactForm.checkValidity()) {
+                contactForm.classList.add("was-validated");
+                return;
+            }
+
+            const formData = new FormData(contactForm);
+            // formData.append("name", nameInput.value); // FormData already gets inputs with name attributes
+            // formData.append("email", emailInput.value);
+            // formData.append("subject", document.getElementById("subject").value);
+            // formData.append("message", document.getElementById("message").value);
+            // const fileInput = document.getElementById("fileUpload");
+            // if (fileInput.files.length > 0) {
+            //     formData.append("file", fileInput.files[0]);
+            // }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/send_mail`, { // Corrected endpoint
+                    method: "POST",
+                    body: formData // FormData handles Content-Type automatically for multipart/form-data
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMessage(data.message || "Message sent successfully!", "success");
+                    contactForm.reset(); // Clear form
+                    contactForm.classList.remove("was-validated"); // Remove validation styles
+
+                    // Re-populate fields if user is still logged in
+                    if (currentUser) {
+                         nameInput.value = currentUser.username || "";
+                         emailInput.value = currentUser.email || "";
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 2000);
+                } else {
+                    showMessage(data.message || "Failed to send message.", "error");
+                }
+            } catch (err) {
+                console.error("Send Error:", err);
+                showMessage("Network error. Please try again.", "error");
+            }
+        });
+    }
+
+    // --- Initialize page on DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Apply theme preference on load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.add('bg-white', 'text-dark');
+        }
+        updateElementStylesForMode(savedTheme || 'light');
+
+        updateUserNameDisplay();
+        await updateNavCartCount();
+        await renderNav();
+    });
+
   </script>
 </body>
 
