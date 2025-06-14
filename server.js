@@ -6,9 +6,10 @@ const express = require("express");
 const cors = require("cors"); // For Cross-Origin Resource Sharing
 const bodyParser = require("body-parser"); // For parsing request bodies
 const bcrypt = require("bcrypt"); // For password hashing
-const nodemailer = require("nodemailer"); // For sending emails (contact form)
+const nodemailer = require("nodemailer"); // For sending emails (contact form, password reset)
 const multer = require("multer"); // For handling multipart/form-data (file uploads)
 const path = require("path"); // For handling file paths
+const crypto = require("crypto"); // For generating secure tokens - THIS IS THE MODULE IN QUESTION
 
 // Database connection pool (assuming db.js exports a pg.Pool instance)
 const db = require("./config/db"); // Using 'db' for the pool as in your original code
@@ -32,6 +33,16 @@ app.use(bodyParser.json());
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- Nodemailer Transporter Configuration ---
+// This transporter will be used for sending all emails (contact form, password reset)
+const transporter = nodemailer.createTransport({
+    service: "gmail", // You can use other services or SMTP
+    auth: {
+        user: process.env.MAIL_USER, // Your Gmail email address (or other service email)
+        pass: process.env.MAIL_PASS, // Your Gmail app password (or other service password)
+    },
+});
+
 // --- Route Imports ---
 // Import your product routes
 const productsRouter = require("./routes/products");
@@ -49,7 +60,7 @@ app.use('/api/cart', cartRoutes);
 // ==========================
 // Signup Route
 // ==========================
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => { // Changed to /api/signup for consistency
     const { username, email, password } = req.body;
 
     if (!username || !email || !password)
@@ -75,7 +86,7 @@ app.post("/signup", async (req, res) => {
 // ==========================
 // Login Route
 // ==========================
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => { // Changed to /api/login for consistency
     const { email, password } = req.body;
 
     if (!email || !password)
@@ -106,6 +117,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// ==========================
 // Forgot Password Route
 // (Request to send reset link)
 // ==========================
@@ -123,11 +135,25 @@ app.post("/api/forgot-password", async (req, res) => {
 
         if (!user) {
             console.log("User not found for forgot password request:", email); // Debug log
-            // Send a generic success message even if user not found to prevent email enumeration
             return res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
         }
 
+        // --- DEEPER DIAGNOSTIC LOGS FOR crypto MODULE ---
+        console.log('DEBUG: Type of crypto variable:', typeof crypto);
+        if (typeof crypto === 'object' && crypto !== null) {
+            console.log('DEBUG: Is crypto an empty object?', Object.keys(crypto).length === 0);
+            console.log('DEBUG: Does crypto have randomBytes property?', 'randomBytes' in crypto);
+            console.log('DEBUG: Type of crypto.randomBytes property:', typeof crypto.randomBytes);
+            // If crypto.randomBytes is there, but not a function, let's see its value
+            if (typeof crypto.randomBytes !== 'function' && 'randomBytes' in crypto) {
+                console.log('DEBUG: Value of crypto.randomBytes:', crypto.randomBytes);
+            }
+        }
+        // --- END DEEPER DIAGNOSTIC LOGS ---
+
+
         // Generate a unique token
+        // THIS IS LINE 131
         const resetToken = crypto.randomBytes(32).toString("hex");
         // Set token expiry (e.g., 1 hour from now)
         const resetExpires = Date.now() + 3600000; // 1 hour in milliseconds
@@ -216,13 +242,6 @@ app.post("/api/reset-password", async (req, res) => {
 });
 
 
-
-
-
-
-
-
-
 // ==========================
 // Update Email Route
 // ==========================
@@ -273,7 +292,7 @@ app.put("/api/user/update-password", async (req, res) => {
 // ==========================
 // Contact Form Route
 // ==========================
-app.post("/send_mail", upload.single("file"), async (req, res) => {
+app.post("/api/send_mail", upload.single("file"), async (req, res) => { // Changed to /api/send_mail
     const { name, email, subject, message } = req.body;
     const file = req.file;
 
@@ -281,17 +300,10 @@ app.post("/send_mail", upload.single("file"), async (req, res) => {
         return res.status(400).json({ error: "All fields are required." });
 
     try {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS,
-            },
-        });
-
+        // Transporter is now configured globally at the top
         const mailOptions = {
             from: `"${name}" <${process.env.MAIL_USER}>`,
-            to: process.env.MAIL_RECEIVER,
+            to: process.env.MAIL_RECEIVER, // Ensure this environment variable is set
             subject: subject,
             html: `
                 <p><strong>Name:</strong> ${name}</p>
@@ -337,6 +349,12 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
 });
+
+
+
+
+
+//new one  14/06/2025
 
 // Load environment variables from .env file
 // Load environment variables from .env file
