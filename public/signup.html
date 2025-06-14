@@ -63,71 +63,399 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    document.getElementById("signupForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
+    // document.getElementById("signupForm").addEventListener("submit", async function (e) {
+    //   e.preventDefault();
 
-      const form = e.target;
-      if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        return;
-      }
+    //   const form = e.target;
+    //   if (!form.checkValidity()) {
+    //     form.classList.add("was-validated");
+    //     return;
+    //   }
 
-      const username = document.getElementById("signupUsername").value.trim();
-      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
-      const password = document.getElementById("signupPassword").value;
+    //   const username = document.getElementById("signupUsername").value.trim();
+    //   const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+    //   const password = document.getElementById("signupPassword").value;
 
-      fetch('https://amazon-clone-fullstack.onrender.com/signup', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      })
-        .then((response) => response.json())
-        //       .then((data) => {
-        //         if (data.message === "User already exists. Please login.") {
-        //           alert(data.message);
-        //           window.location.href = "login.html"; // Redirect to login
-        //         } else if (data.message === "Signup successful") {
-        //           alert("Signup successful! Redirecting to home.");
-        //           // window.location.href = "index.html";
-        //           localStorage.setItem("currentUser", JSON.stringify(data.user));
-        // alert(`Signup successful! Welcome, ${data.user.username}`);
-        // window.location.href = "index.html";
+    //   fetch('https://amazon-clone-fullstack.onrender.com/signup', {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ username, email, password }),
+    //   })
+    //     .then((response) => response.json())
+    //     //       .then((data) => {
+    //     //         if (data.message === "User already exists. Please login.") {
+    //     //           alert(data.message);
+    //     //           window.location.href = "login.html"; // Redirect to login
+    //     //         } else if (data.message === "Signup successful") {
+    //     //           alert("Signup successful! Redirecting to home.");
+    //     //           // window.location.href = "index.html";
+    //     //           localStorage.setItem("currentUser", JSON.stringify(data.user));
+    //     // alert(`Signup successful! Welcome, ${data.user.username}`);
+    //     // window.location.href = "index.html";
 
-        //         } else {
-        //           alert(data.message || "Signup failed.");
-        //         }
-        //       })
-        //       .catch((error) => {
-        //         console.error("Signup error:", error);
-        //         alert("Something went wrong. Please try again.");
-        //       });
-        //   });
-        .then((data) => {
-          if (data.message === "User already exists. Please login.") {
-            alert(data.message);
-            window.location.href = "login.html"; // Redirect to login
-          } else if (data.message && data.message.includes("successful")) { // More flexible check for "successful" in message
-            // Ensure data.user exists before using it
-            if (data.user) {
-              localStorage.setItem("currentUser", JSON.stringify(data.user));
-              alert(`Signup successful! Welcome, ${data.user.username}`);
-              window.location.href = "index.html";
+    //     //         } else {
+    //     //           alert(data.message || "Signup failed.");
+    //     //         }
+    //     //       })
+    //     //       .catch((error) => {
+    //     //         console.error("Signup error:", error);
+    //     //         alert("Something went wrong. Please try again.");
+    //     //       });
+    //     //   });
+    //     .then((data) => {
+    //       if (data.message === "User already exists. Please login.") {
+    //         alert(data.message);
+    //         window.location.href = "login.html"; // Redirect to login
+    //       } else if (data.message && data.message.includes("successful")) { // More flexible check for "successful" in message
+    //         // Ensure data.user exists before using it
+    //         if (data.user) {
+    //           localStorage.setItem("currentUser", JSON.stringify(data.user));
+    //           alert(`Signup successful! Welcome, ${data.user.username}`);
+    //           window.location.href = "index.html";
+    //         } else {
+    //           // If signup was successful but no user data, handle gracefully
+    //           alert("Signup successful, now logging in.");
+    //           window.location.href = "login.html"; // Redirect to login
+    //         }
+    //       } else {
+    //         // Catch-all for other messages from the backend that are not "user exists" or "successful"
+    //         alert(data.message || "Signup failed due to an unknown reason.");
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.error("Signup error:", error);
+    //       // Display the error message from the thrown error or a generic one
+    //       alert(`Something went wrong: ${error.message || "Please try again."}`);
+    //     });
+    // });
+        const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com'; // Backend base URL
+
+    // DOM elements
+    const usernameInput = document.getElementById("signupUsername"); // Corrected ID
+    const emailInput = document.getElementById("signupEmail");     // Corrected ID
+    const passwordInput = document.getElementById("signupPassword");   // Corrected ID
+    const signupForm = document.getElementById("signupForm");
+    const signupMessageDiv = document.getElementById("signupMessage"); // NEW: Target for form-specific messages
+    
+    // Elements for navbar consistency
+    const cartCountEl = document.getElementById("cart-count");
+    const navLinks = document.getElementById("nav-links");
+    const userNameContainer = document.getElementById("user-name-container"); // This might not be present on signup.html, but keeping for consistency if added later.
+
+    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+
+    // --- Helper function to display messages ---
+    // Default target for showMessage is now signupMessageDiv for form-specific feedback.
+    // For general alerts not tied to a form, you might still use a global messageBox if available.
+    function showMessage(message, type = 'success', targetElement = signupMessageDiv) {
+        if (!targetElement) {
+            console.error("Target message element not found for message:", message);
+            console.log(`Message (${type}): ${message}`);
+            return;
+        }
+
+        targetElement.textContent = message;
+        targetElement.className = ''; // Clear previous classes
+        targetElement.classList.add(type); // Add success/error/info class
+        if (type === 'success') {
+            targetElement.classList.add('alert', 'alert-success');
+        } else if (type === 'error') {
+            targetElement.classList.add('alert', 'alert-danger');
+        } else if (type === 'info') {
+            targetElement.classList.add('alert', 'alert-info');
+        }
+        targetElement.classList.add('text-center', 'mt-3'); // Add Bootstrap text-center and margin
+        targetElement.style.display = 'block';
+
+        setTimeout(() => {
+            targetElement.style.display = 'none';
+            targetElement.textContent = ''; // Clear text
+            targetElement.classList.remove('alert', 'alert-success', 'alert-danger', 'alert-info', 'text-center', 'mt-3');
+        }, 3000);
+    }
+
+    // --- Mode toggle function (consistent with other pages) ---
+    function mode() {
+        const body = document.body;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+        if (newTheme === 'dark') {
+            body.classList.add('dark-mode');
+            body.classList.remove('bg-white', 'text-dark');
+        } else {
+            body.classList.remove('dark-mode');
+            body.classList.add('bg-white', 'text-dark');
+        }
+        localStorage.setItem('theme', newTheme);
+        updateElementStylesForMode(newTheme);
+    }
+
+    // Function to apply/remove specific element styles based on theme (copied for consistency)
+    function updateElementStylesForMode(theme) {
+        const body = document.body; // Reference to the body for background and text
+        const navbar = document.querySelector('.navbar');
+        const footer = document.querySelector('.footer'); // Assuming footer exists
+        const formLabels = document.querySelectorAll('.form-label');
+        const h2Elements = document.querySelectorAll('h2'); 
+        const pElements = document.querySelectorAll('p'); 
+        const formControls = document.querySelectorAll('.form-control');
+        const btnOutlineLights = document.querySelectorAll('.btn-outline-light');
+        const alertElements = document.querySelectorAll('.alert'); 
+
+        if (theme === 'dark') {
+            body.classList.add('dark-mode');
+            body.classList.remove('bg-white', 'text-dark');
+        } else {
+            body.classList.remove('dark-mode');
+            body.classList.add('bg-white', 'text-dark');
+        }
+
+        if (navbar) {
+            if (theme === 'dark') {
+                navbar.classList.remove('navbar-dark', 'bg-primary');
+                navbar.classList.add('navbar-light', 'bg-dark');
             } else {
-              // If signup was successful but no user data, handle gracefully
-              alert("Signup successful, now logging in.");
-              window.location.href = "login.html"; // Redirect to login
+                navbar.classList.remove('navbar-light', 'bg-dark');
+                navbar.classList.add('navbar-dark', 'bg-primary');
             }
-          } else {
-            // Catch-all for other messages from the backend that are not "user exists" or "successful"
-            alert(data.message || "Signup failed due to an unknown reason.");
-          }
-        })
-        .catch((error) => {
-          console.error("Signup error:", error);
-          // Display the error message from the thrown error or a generic one
-          alert(`Something went wrong: ${error.message || "Please try again."}`);
+        }
+
+        if (footer) { // Only apply if footer exists
+            if (theme === 'dark') {
+                footer.classList.remove('bg-dark', 'text-white'); // Assuming these are default
+                footer.classList.add('bg-dark', 'text-white'); // Keep dark for footer if applicable, or adjust
+            } else {
+                footer.classList.remove('bg-dark', 'text-white');
+                footer.classList.add('bg-dark', 'text-white');
+            }
+        }
+
+        formLabels.forEach(label => {
+            if (theme === 'dark') label.style.color = '#f8f9fa';
+            else label.style.color = '';
         });
+        h2Elements.forEach(h2 => { 
+            if (theme === 'dark') h2.style.color = '#f8f9fa';
+            else h2.style.color = '';
+        });
+        pElements.forEach(p => { 
+            if (theme === 'dark') p.style.color = '#f8f9fa';
+            else p.style.color = '';
+        });
+        formControls.forEach(input => {
+            if (theme === 'dark') {
+                input.style.backgroundColor = '#495057';
+                input.style.color = '#f8f9fa';
+                input.style.borderColor = '#6c757d';
+            } else {
+                input.style.backgroundColor = '';
+                input.style.color = '';
+                input.style.borderColor = '';
+            }
+        });
+        const hoverGreenTexts = document.querySelectorAll('.hover-green-text');
+        hoverGreenTexts.forEach(span => {
+            if (theme === 'dark') {
+                span.classList.remove('text-white');
+                span.style.color = '#f8f9fa';
+            } else {
+                span.classList.add('text-white');
+                span.style.color = '';
+            }
+        });
+        btnOutlineLights.forEach(btn => {
+            if (theme === 'dark') {
+                btn.style.color = '#f8f9fa';
+                btn.style.borderColor = '#f8f9fa';
+            } else {
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }
+        });
+
+        alertElements.forEach(alertEl => {
+            if (theme === 'dark') {
+                if (alertEl.classList.contains('alert-info')) {
+                    alertEl.style.backgroundColor = '#17a2b8';
+                    alertEl.style.color = '#fff';
+                } else if (alertEl.classList.contains('alert-success')) {
+                    alertEl.style.backgroundColor = '#28a745';
+                    alertEl.style.color = '#fff';
+                } else if (alertEl.classList.contains('alert-danger')) {
+                    alertEl.style.backgroundColor = '#dc3545';
+                    alertEl.style.color = '#fff';
+                } else if (alertEl.classList.contains('alert-warning')) {
+                    alertEl.style.backgroundColor = '#ffc107';
+                    alertEl.style.color = '#212529';
+                }
+            } else {
+                alertEl.style.backgroundColor = '';
+                alertEl.style.color = '';
+            }
+        });
+    }
+
+    // --- Update User Name Display (copied for consistency) ---
+    function updateUserNameDisplay() {
+        if (currentUser && currentUser.username) {
+            // Check if userNameContainer exists on this page
+            if (userNameContainer) {
+                userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+            }
+        } else {
+            if (userNameContainer) {
+                userNameContainer.innerHTML = "";
+            }
+        }
+    }
+
+    // --- Helper to update cart count badge visually in navbar (copied for consistency) ---
+    async function updateNavCartCount() {
+        let cartLength = 0;
+        if (currentUser && currentUser.id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok && data.cartItems) {
+                    cartLength = data.cartItems.length;
+                } else {
+                    console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+                    cartLength = 0;
+                }
+            } catch (error) {
+                console.error('Network error getting cart count for navigation:', error);
+                cartLength = 0;
+            }
+        }
+        if (cartCountEl) cartCountEl.textContent = cartLength;
+    }
+
+    // --- Render navigation based on login state (copied for consistency) ---
+    async function renderNav() {
+        if (!navLinks) {
+            console.error("Navigation links element not found. Cannot render navigation.");
+            return;
+        }
+        navLinks.innerHTML = "";
+        let cartLength = 0; // Initialize cartLength here
+
+        if (currentUser && currentUser.id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok && data.cartItems) {
+                    cartLength = data.cartItems.length;
+                } else {
+                    console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+                    cartLength = 0;
+                }
+            } catch (error) {
+                console.error('Network error getting cart count for navigation:', error);
+                cartLength = 0;
+            }
+
+            navLinks.innerHTML = `
+                <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/profile.html">Profile (${currentUser.username})</a></li>
+                <li class="nav-item ms-3">
+                    <a href="/cart.html" class="btn btn-outline-light position-relative rounded">
+                        Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${cartLength}
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-item ms-3">
+                    <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
+                </li>`;
+        } else {
+            navLinks.innerHTML = `
+                <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/signup.html">Signup</a></li>
+                <li class="nav-item ms-3">
+                    <a href="/cart.html" class="btn btn-outline-light position-relative rounded">
+                        Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${cartLength}
+                        </span>
+                    </a>
+                </li>`;
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                localStorage.removeItem("currentUser");
+                currentUser = null;
+                location.reload();
+            });
+        }
+        updateElementStylesForMode(localStorage.getItem('theme') || 'light');
+    }
+
+    // --- Signup Form Submission ---
+    signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!signupForm.checkValidity()) {
+            signupForm.classList.add("was-validated");
+            return;
+        }
+
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+
+        try {
+            // FIX: Corrected API endpoint for signup
+            const res = await fetch(`${API_BASE_URL}/api/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showMessage(data.message || "Signup successful! You can now login.", "success", signupMessageDiv); // Target signupMessageDiv
+                signupForm.reset(); // Clear form fields
+                signupForm.classList.remove("was-validated"); // Remove validation styling
+                setTimeout(() => {
+                    window.location.href = "/login.html"; // FIX: Redirect to login page with absolute path
+                }, 2000);
+            } else {
+                showMessage(data.message || "Signup failed. Please try again.", "error", signupMessageDiv); // Target signupMessageDiv
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+            showMessage("Network error. Please try again later.", "error", signupMessageDiv); // Target signupMessageDiv
+        }
     });
+
+    // --- Initialize page on DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Apply theme preference on load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.add('bg-white', 'text-dark');
+        }
+        updateElementStylesForMode(savedTheme || 'light');
+
+        updateUserNameDisplay(); // Ensure this is called if userNameContainer is relevant
+        await updateNavCartCount();
+        await renderNav();
+    });
+
   </script>
 </body>
 
