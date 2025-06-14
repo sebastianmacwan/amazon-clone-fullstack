@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,13 +8,13 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="global.css" />
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
     <a class="navbar-brand" href="index.html">Amazon Clone</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-      data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-      aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -24,7 +25,8 @@
       </ul>
       <a href="cart.html" class="btn btn-outline-light ms-3 position-relative">
         Cart
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">0</span>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+          id="cart-count">0</span>
       </a>
     </div>
   </nav>
@@ -35,7 +37,8 @@
     <form id="signupForm" novalidate>
       <div class="mb-3">
         <label for="signupUsername" class="form-label">Username</label>
-        <input type="text" class="form-control" id="signupUsername" required minlength="3" placeholder="Enter username" />
+        <input type="text" class="form-control" id="signupUsername" required minlength="3"
+          placeholder="Enter username" />
         <div class="invalid-feedback">Username must be at least 3 characters.</div>
       </div>
       <div class="mb-3">
@@ -45,7 +48,8 @@
       </div>
       <div class="mb-3">
         <label for="signupPassword" class="form-label">Password</label>
-        <input type="password" class="form-control" id="signupPassword" required minlength="6" placeholder="Create a password" />
+        <input type="password" class="form-control" id="signupPassword" required minlength="6"
+          placeholder="Create a password" />
         <div class="invalid-feedback">Password must be at least 6 characters.</div>
       </div>
       <button type="submit" class="btn btn-primary w-100">Sign Up</button>
@@ -72,32 +76,59 @@
       const email = document.getElementById("signupEmail").value.trim().toLowerCase();
       const password = document.getElementById("signupPassword").value;
 
-     fetch('https://amazon-clone-fullstack.onrender.com/signup', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === "User already exists. Please login.") {
-          alert(data.message);
-          window.location.href = "login.html"; // Redirect to login
-        } else if (data.message === "Signup successful") {
-          alert("Signup successful! Redirecting to home.");
-          // window.location.href = "index.html";
-          localStorage.setItem("currentUser", JSON.stringify(data.user));
-alert(`Signup successful! Welcome, ${data.user.username}`);
-window.location.href = "index.html";
-
-        } else {
-          alert(data.message || "Signup failed.");
-        }
+      fetch('https://amazon-clone-fullstack.onrender.com/signup', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
       })
-      .catch((error) => {
-        console.error("Signup error:", error);
-        alert("Something went wrong. Please try again.");
-      });
-  });
+        .then((response) => response.json())
+        //       .then((data) => {
+        //         if (data.message === "User already exists. Please login.") {
+        //           alert(data.message);
+        //           window.location.href = "login.html"; // Redirect to login
+        //         } else if (data.message === "Signup successful") {
+        //           alert("Signup successful! Redirecting to home.");
+        //           // window.location.href = "index.html";
+        //           localStorage.setItem("currentUser", JSON.stringify(data.user));
+        // alert(`Signup successful! Welcome, ${data.user.username}`);
+        // window.location.href = "index.html";
+
+        //         } else {
+        //           alert(data.message || "Signup failed.");
+        //         }
+        //       })
+        //       .catch((error) => {
+        //         console.error("Signup error:", error);
+        //         alert("Something went wrong. Please try again.");
+        //       });
+        //   });
+        .then((data) => {
+          if (data.message === "User already exists. Please login.") {
+            alert(data.message);
+            window.location.href = "login.html"; // Redirect to login
+          } else if (data.message && data.message.includes("successful")) { // More flexible check for "successful" in message
+            // Ensure data.user exists before using it
+            if (data.user) {
+              localStorage.setItem("currentUser", JSON.stringify(data.user));
+              alert(`Signup successful! Welcome, ${data.user.username}`);
+              window.location.href = "index.html";
+            } else {
+              // If signup was successful but no user data, handle gracefully
+              alert("Signup successful, now logging in.");
+              window.location.href = "login.html"; // Redirect to login
+            }
+          } else {
+            // Catch-all for other messages from the backend that are not "user exists" or "successful"
+            alert(data.message || "Signup failed due to an unknown reason.");
+          }
+        })
+        .catch((error) => {
+          console.error("Signup error:", error);
+          // Display the error message from the thrown error or a generic one
+          alert(`Something went wrong: ${error.message || "Please try again."}`);
+        });
+    });
   </script>
 </body>
+
 </html>
