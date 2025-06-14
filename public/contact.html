@@ -497,8 +497,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // showMessage(data.message || "Message sent successfully!", "success");
-                    statusDiv.innerText = "✅ Message sent successfully!";
+                    showMessage(data.message || "✅ Message sent successfully!", "success");
                     contactForm.reset(); // Clear form
                     contactForm.classList.remove("was-validated"); // Remove validation styles
 
@@ -507,8 +506,6 @@
                          nameInput.value = currentUser.username || "";
                          emailInput.value = currentUser.email || "";
                     }
-                    
-        
 
                     setTimeout(() => {
                         window.location.href = "index.html";
