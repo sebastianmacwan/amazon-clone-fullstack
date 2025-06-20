@@ -8,6 +8,19 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="global.css" />
 </head>
+<style>.dark-mode .form-control::placeholder {
+      color: #ced4da;
+    }
+
+    .dark-mode .btn-outline-light {
+      color: #f8f9fa !important;
+      border-color: #f8f9fa !important;
+    }
+
+    .dark-mode .btn-outline-light:hover {
+      background-color: #f8f9fa !important;
+      color: #212529 !important;
+    }</style>
 <body>
 
   <!-- Navbar -->
@@ -18,6 +31,8 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+            <button onclick="mode()" class="btn btn-outline-light btn-sm rounded ms-3">mode</button>
+
     </div>
   </nav>
 
@@ -191,5 +206,6 @@
       loadProfile();
     });
   </script>
+  <script src="global.js"></script>
 </body>
 </html>

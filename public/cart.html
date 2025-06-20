@@ -1,3 +1,4 @@
+<!-- 25june -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +8,8 @@
     <title>MyStore - Cart</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Custom CSS for Inter font and general styling -->
+    <link rel="stylesheet" href="global.css">
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -447,17 +449,17 @@
             if (cartCountEl) cartCountEl.textContent = count;
         }
 
-        // Mode toggle function (replicated for consistency)
-        let classes = ["bg-white", "bg-dark"];
-        let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
-        let current = 0;
-        function mode() {
-            const body = document.body;
-            body.classList.remove(...classes, "text-white", "text-dark");
-            current = (current + 1) % classes.length;
-            body.classList.add(classes[current], textColors[current]);
-            body.style.backgroundImage = "none"; // Remove background image if any
-        }
+        // // Mode toggle function (replicated for consistency)
+        // let classes = ["bg-white", "bg-dark"];
+        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
+        // let current = 0;
+        // function mode() {
+        //     const body = document.body;
+        //     body.classList.remove(...classes, "text-white", "text-dark");
+        //     current = (current + 1) % classes.length;
+        //     body.classList.add(classes[current], textColors[current]);
+        //     body.style.backgroundImage = "none"; // Remove background image if any
+        // }
 
         // Initialize page on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', async () => {
@@ -467,6 +469,7 @@
             await fetchCartItems();
         });
     </script>
+    <script src="global.js"></script>
 </body>
 
 </html>
