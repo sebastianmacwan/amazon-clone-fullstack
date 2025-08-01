@@ -6,6 +6,10 @@
     <title>Product Details - Amazon Clone</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Custom CSS for Inter font and general styling -->
+<<<<<<< HEAD
+=======
+     <!-- <link rel="stylesheet" href="global.css"> -->
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -107,7 +111,11 @@
 
     <script>
         // Backend API base URL
+<<<<<<< HEAD
         const API_BASE_URL = 'http://localhost:5000/api'; // Adjust if your backend runs on a different port/host
+=======
+        const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com/api'; // Adjust if your backend runs on a different port/host
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
         // DOM elements
         const productDetailsEl = document.getElementById("productDetails");
@@ -327,6 +335,7 @@
         }
 
 
+<<<<<<< HEAD
         // Mode toggle function
         let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
         let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
@@ -338,11 +347,28 @@
             body.classList.add(classes[current], textColors[current]);
             body.style.backgroundImage = "none"; // Remove background image if any
         }
+=======
+        // // Mode toggle function
+        // let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
+        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
+        // let current = 0;
+        // function mode() {
+        //     const body = document.body;
+        //     body.classList.remove(...classes, "text-white", "text-dark");
+        //     current = (current + 1) % classes.length;
+        //     body.classList.add(classes[current], textColors[current]);
+        //     body.style.backgroundImage = "none"; // Remove background image if any
+        // }
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
         // Initial render logic
         document.addEventListener('DOMContentLoaded', async () => {
             await renderNav(); // Render navigation and fetch cart count on load
         });
     </script>
+<<<<<<< HEAD
+=======
+    <script src="global.js"></script>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 </body>
 </html>

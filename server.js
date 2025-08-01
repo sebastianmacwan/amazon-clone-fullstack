@@ -6,9 +6,16 @@ const express = require("express");
 const cors = require("cors"); // For Cross-Origin Resource Sharing
 const bodyParser = require("body-parser"); // For parsing request bodies
 const bcrypt = require("bcrypt"); // For password hashing
+<<<<<<< HEAD
 const nodemailer = require("nodemailer"); // For sending emails (contact form)
 const multer = require("multer"); // For handling multipart/form-data (file uploads)
 const path = require("path"); // For handling file paths
+=======
+const nodemailer = require("nodemailer"); // For sending emails (contact form, password reset)
+const multer = require("multer"); // For handling multipart/form-data (file uploads)
+const path = require("path"); // For handling file paths
+const crypto = require("crypto"); // For generating secure tokens - THIS IS THE MODULE IN QUESTION
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
 // Database connection pool (assuming db.js exports a pg.Pool instance)
 const db = require("./config/db"); // Using 'db' for the pool as in your original code
@@ -32,6 +39,19 @@ app.use(bodyParser.json());
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
+<<<<<<< HEAD
+=======
+// --- Nodemailer Transporter Configuration ---
+// This transporter will be used for sending all emails (contact form, password reset)
+const transporter = nodemailer.createTransport({
+    service: "gmail", // You can use other services or SMTP
+    auth: {
+        user: process.env.MAIL_USER, // Your Gmail email address (or other service email)
+        pass: process.env.MAIL_PASS, // Your Gmail app password (or other service password)
+    },
+});
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 // --- Route Imports ---
 // Import your product routes
 const productsRouter = require("./routes/products");
@@ -49,7 +69,11 @@ app.use('/api/cart', cartRoutes);
 // ==========================
 // Signup Route
 // ==========================
+<<<<<<< HEAD
 app.post("/signup", async (req, res) => {
+=======
+app.post("/api/signup", async (req, res) => { // Changed to /api/signup for consistency
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     const { username, email, password } = req.body;
 
     if (!username || !email || !password)
@@ -75,7 +99,11 @@ app.post("/signup", async (req, res) => {
 // ==========================
 // Login Route
 // ==========================
+<<<<<<< HEAD
 app.post("/login", async (req, res) => {
+=======
+app.post("/api/login", async (req, res) => { // Changed to /api/login for consistency
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     const { email, password } = req.body;
 
     if (!email || !password)
@@ -107,6 +135,134 @@ app.post("/login", async (req, res) => {
 });
 
 // ==========================
+<<<<<<< HEAD
+=======
+// Forgot Password Route
+// (Request to send reset link)
+// ==========================
+app.post("/api/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    console.log("Forgot password request received for email:", email); // Debug log
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required." });
+    }
+
+    try {
+        const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+        const user = result.rows[0];
+
+        if (!user) {
+            console.log("User not found for forgot password request:", email); // Debug log
+            return res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
+        }
+
+        // --- DEEPER DIAGNOSTIC LOGS FOR crypto MODULE ---
+        console.log('DEBUG: Type of crypto variable:', typeof crypto);
+        if (typeof crypto === 'object' && crypto !== null) {
+            console.log('DEBUG: Is crypto an empty object?', Object.keys(crypto).length === 0);
+            console.log('DEBUG: Does crypto have randomBytes property?', 'randomBytes' in crypto);
+            console.log('DEBUG: Type of crypto.randomBytes property:', typeof crypto.randomBytes);
+            // If crypto.randomBytes is there, but not a function, let's see its value
+            if (typeof crypto.randomBytes !== 'function' && 'randomBytes' in crypto) {
+                console.log('DEBUG: Value of crypto.randomBytes:', crypto.randomBytes);
+            }
+        }
+        // --- END DEEPER DIAGNOSTIC LOGS ---
+
+
+        // Generate a unique token
+        // THIS IS LINE 131
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        // Set token expiry (e.g., 1 hour from now)
+        const resetExpires = Date.now() + 3600000; // 1 hour in milliseconds
+        console.log("Generated reset token:", resetToken, "Expires:", new Date(resetExpires)); // Debug log
+
+        // Save token and expiry to the user in the database
+        await db.query(
+            "UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3",
+            [resetToken, resetExpires, user.id]
+        );
+        console.log("Updated user with reset token in DB for user ID:", user.id); // Debug log
+
+        // Construct the reset URL for the frontend
+        // Ensure process.env.FRONTEND_URL is correctly set in your .env file
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password.html?token=${resetToken}`;
+        console.log("Reset URL generated:", resetUrl); // Debug log
+
+        const mailOptions = {
+            from: process.env.MAIL_USER,
+            to: user.email,
+            subject: "Password Reset Request for Amazon Clone",
+            html: `
+                <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+                <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+                <p><a href="${resetUrl}">${resetUrl}</a></p>
+                <p>This link will expire in 1 hour.</p>
+                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("Password reset email sent to:", user.email); // Debug log
+
+        res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
+    } catch (err) {
+        console.error("Forgot password error in catch block:", err); // Improved error log
+        res.status(500).json({ message: "Failed to send password reset email." });
+    }
+});
+
+// ==========================
+// Reset Password Route
+// (Verify token and set new password)
+// ==========================
+app.post("/api/reset-password", async (req, res) => {
+    const { token, newPassword } = req.body;
+    console.log("Reset password request received for token (first few chars):", token ? token.substring(0, 10) + "..." : "N/A"); // Debug log
+
+    if (!token || !newPassword) {
+        console.warn("Reset password: Missing token or new password."); // Debug log
+        return res.status(400).json({ message: "Token and new password are required." });
+    }
+
+    try {
+        const currentTime = Date.now();
+        console.log("Current timestamp for expiry check:", currentTime); // Debug log
+
+        const result = await db.query(
+            "SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2",
+            [token, currentTime]
+        );
+        const user = result.rows[0];
+
+        if (!user) {
+            console.warn("Reset password: Token not found or expired for token:", token); // Debug log
+            return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+        }
+
+        console.log("User found for reset password:", user.email); // Debug log
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        console.log("New password hashed."); // Debug log
+
+        // Update password and clear reset token fields
+        await db.query(
+            "UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2",
+            [hashedNewPassword, user.id]
+        );
+
+        console.log("Password successfully reset and token cleared for user:", user.email); // Debug log
+        res.status(200).json({ message: "Password has been reset successfully." });
+    } catch (err) {
+        console.error("Reset password error in catch block:", err); // Improved error log
+        res.status(500).json({ message: "Failed to reset password." });
+    }
+});
+
+
+// ==========================
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 // Update Email Route
 // ==========================
 app.put("/api/user/update-email", async (req, res) => {
@@ -156,7 +312,11 @@ app.put("/api/user/update-password", async (req, res) => {
 // ==========================
 // Contact Form Route
 // ==========================
+<<<<<<< HEAD
 app.post("/send_mail", upload.single("file"), async (req, res) => {
+=======
+app.post("/api/send_mail", upload.single("file"), async (req, res) => { // Changed to /api/send_mail
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     const { name, email, subject, message } = req.body;
     const file = req.file;
 
@@ -164,6 +324,7 @@ app.post("/send_mail", upload.single("file"), async (req, res) => {
         return res.status(400).json({ error: "All fields are required." });
 
     try {
+<<<<<<< HEAD
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -175,6 +336,12 @@ app.post("/send_mail", upload.single("file"), async (req, res) => {
         const mailOptions = {
             from: `"${name}" <${process.env.MAIL_USER}>`,
             to: process.env.MAIL_RECEIVER,
+=======
+        // Transporter is now configured globally at the top
+        const mailOptions = {
+            from: `"${name}" <${process.env.MAIL_USER}>`,
+            to: process.env.MAIL_RECEIVER, // Ensure this environment variable is set
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
             subject: subject,
             html: `
                 <p><strong>Name:</strong> ${name}</p>
@@ -220,3 +387,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
 });
+<<<<<<< HEAD
+=======
+
+
+
+
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271

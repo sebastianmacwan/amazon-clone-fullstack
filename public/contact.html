@@ -26,12 +26,22 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+<<<<<<< HEAD
       /* background-image: linear-gradient(to right, #11cb43, #2575fc, #9ccb11); */
       background-image: url('https://images.pexels.com/photos/325153/pexels-photo-325153.jpeg?auto=compress&cs=tinysrgb&w=1600');
 
       background-size: 700px;
       animation: moveGradient 15s ease-in-out infinite;
       padding: 20px;
+=======
+      /* background-image: url('https://images.pexels.com/photos/325153/pexels-photo-325153.jpeg?auto=compress&cs=tinysrgb&w=1600'); */
+      background-size: 700px;
+      animation: moveGradient 15s ease-in-out infinite;
+      padding: 20px;
+      /* Ensure body is always white for consistency */
+      background-color: #fff !important;
+      color: #000 !important;
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     }
 
     @keyframes moveGradient {
@@ -133,6 +143,7 @@
 
 <body>
   <div class="contact-container">
+<<<<<<< HEAD
        <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
         <a class="navbar-brand" href="index.html"><button>Home</button></a>
         <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase "
@@ -148,6 +159,21 @@
                 <!-- Content will be injected by JS -->
             </ul>
         </div>
+=======
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+      <a class="navbar-brand" href="index.html"><button>Home</button></a>
+      <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase "
+        style="color: #fff; font-weight: bold;">
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
+        </ul>
+      </div>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     </nav>
     <h1>Contact Us</h1>
     <form id="contactForm" enctype="multipart/form-data">
@@ -170,6 +196,7 @@
       <div id="status"></div>
     </form>
   </div>
+<<<<<<< HEAD
 
   <script>
     function redirectToLogin() {
@@ -194,16 +221,167 @@
     } else {
       nameInput.value = user.username || "";
       emailInput.value = user.email || "";
+=======
+  <script>
+    const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com'; // Backend base URL
+
+    // DOM elements
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const contactForm = document.getElementById("contactForm");
+    const formStatusDiv = document.getElementById("status");
+
+    // Elements for navbar consistency
+    const cartCountEl = document.getElementById("cart-count");
+    const navLinks = document.getElementById("nav-links");
+    const userNameContainer = document.getElementById("user-name-container");
+
+    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+
+    // --- Helper function to display messages ---
+    function showMessage(message, type = 'success', targetElement = formStatusDiv) {
+      if (!targetElement) {
+        console.error("Target message element not found.");
+        console.log(`Message (${type}): ${message}`);
+        return;
+      }
+
+      targetElement.textContent = message;
+      targetElement.className = type;
+      targetElement.style.display = 'block';
+
+      setTimeout(() => {
+        targetElement.style.display = 'none';
+        targetElement.textContent = ''; // Clear text
+        targetElement.classList.remove('success', 'error'); // Remove status classes
+      }, 3000); // Hide after 3 seconds
+    }
+
+    // --- Function to redirect to login ---
+    function redirectToLogin() {
+      showMessage("⚠️ Please login to use the contact form.", "error", formStatusDiv);
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500); // Redirect after message is displayed for a moment
+    }
+
+    // --- Update User Name Display ---
+    function updateUserNameDisplay() {
+      if (currentUser && currentUser.username) {
+        userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+      } else {
+        userNameContainer.innerHTML = "";
+      }
+    }
+
+    // --- Helper to update cart count badge visually in navbar ---
+    async function updateNavCartCount() {
+      let cartLength = 0;
+      if (currentUser && currentUser.id) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
+        }
+      }
+      if (cartCountEl) cartCountEl.textContent = cartLength;
+    }
+
+    // --- Render navigation based on login state ---
+    async function renderNav() {
+      if (!navLinks) {
+        console.error("Navigation links element not found. Cannot render navigation.");
+        return;
+      }
+      navLinks.innerHTML = "";
+      let cartLength = 0;
+
+      if (currentUser && currentUser.id) {
+        // Fetch cart length if user is logged in
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
+        }
+
+
+      } else {
+        navLinks.innerHTML = `
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
+                    <li class="nav-item ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                            Cart
+                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                ${cartLength}
+                            </span>
+                        </a>
+                    </li>`; // Removed mode-toggle button
+      }
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("currentUser");
+          currentUser = null;
+          location.reload();
+        });
+      }
+    }
+
+    // --- Initial Check and Form Setup ---
+    if (!currentUser || !nameInput || !emailInput || !contactForm) {
+      redirectToLogin();
+    } else {
+      nameInput.value = currentUser.username || "";
+      emailInput.value = currentUser.email || "";
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
       contactForm.addEventListener("submit", async function (e) {
         e.preventDefault();
 
+<<<<<<< HEAD
         const formData = new FormData(contactForm);
         statusDiv.innerText = "";
         statusDiv.className = "";
 
         try {
           const res = await fetch("http://localhost:5000/send_mail", {
+=======
+        // Basic client-side validation
+        if (!contactForm.checkValidity()) {
+          contactForm.classList.add("was-validated");
+          return;
+        }
+
+        const formData = new FormData(contactForm);
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/send_mail`, {
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
             method: "POST",
             body: formData
           });
@@ -211,6 +389,7 @@
           const data = await res.json();
 
           if (res.ok) {
+<<<<<<< HEAD
             statusDiv.innerText = "✅ Message sent successfully!";
             statusDiv.className = "success";
             contactForm.reset();
@@ -233,6 +412,44 @@
       });
     }
   </script>
+=======
+            showMessage(data.message || "Message sent successfully!", "success", formStatusDiv);
+            contactForm.reset();
+            contactForm.classList.remove("was-validated");
+
+            // Re-populate fields if user is still logged in
+            if (currentUser) {
+              nameInput.value = currentUser.username || "";
+              emailInput.value = currentUser.email || "";
+            }
+
+            // --- REDIRECTION ENABLED HERE ---
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 2000); // Redirect after 2 seconds
+          } else {
+            showMessage(data.message || "Failed to send message.", "error", formStatusDiv);
+          }
+        } catch (err) {
+          console.error("Send Error:", err);
+          showMessage("Network error. Please try again.", "error", formStatusDiv);
+        }
+      });
+    }
+
+    // --- Initialize page on DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      // No theme preference to apply, just ensure standard white theme
+      document.body.classList.add('bg-white', 'text-dark');
+
+      updateUserNameDisplay();
+      await updateNavCartCount();
+      await renderNav();
+    });
+
+  </script>
+  <script src="global.js"></script>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 </body>
 
 </html>

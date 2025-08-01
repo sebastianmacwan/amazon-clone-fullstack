@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
+=======
+<!-- 25june -->
+<!DOCTYPE html>
+<html lang="en">
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,33 +21,63 @@
             display: flex;
             flex-direction: column;
         }
+<<<<<<< HEAD
         .navbar, .footer {
             flex-shrink: 0;
         }
         .container {
             flex-grow: 1;
         }
+=======
+
+        .navbar,
+        .footer {
+            flex-shrink: 0;
+        }
+
+        .container {
+            flex-grow: 1;
+        }
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         .product-card {
             border-radius: 0.5rem;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
             cursor: pointer;
         }
+<<<<<<< HEAD
         .product-card:hover {
             transform: translateY(-5px);
         }
+=======
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         .product-card img {
             border-top-left-radius: 0.5rem;
             border-top-right-radius: 0.5rem;
             object-fit: cover;
+<<<<<<< HEAD
             height: 200px; /* Fixed height for product images */
             width: 100%;
         }
+=======
+            height: 200px;
+            /* Fixed height for product images */
+            width: 100%;
+        }
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         /* Message box styling (consistent across pages) */
         #messageBox {
             position: fixed;
             top: 20px;
             right: 20px;
+<<<<<<< HEAD
             z-index: 1050; /* Above Bootstrap modals */
             padding: 15px;
             border-radius: 8px;
@@ -62,11 +99,53 @@
             border: 1px solid #ddd;
             border-top: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+=======
+            z-index: 1050;
+            /* Above Bootstrap modals */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            /* Hidden by default */
+            color: #fff;
+            font-weight: bold;
+        }
+
+        #messageBox.success {
+            background-color: #28a745;
+        }
+
+        #messageBox.error {
+            background-color: #dc3545;
+        }
+
+        #messageBox.info {
+            background-color: #17a2b8;
+        }
+
+        /* Styles for search suggestion list */
+        #suggestionList {
+            z-index: 10;
+            /* Ensure it appears above other content */
+            width: 100%;
+            /* Match width of search box */
+            max-height: 300px;
+            /* Max height for scrollability */
+            overflow-y: auto;
+            /* Enable scrolling if too many suggestions */
+            border: 1px solid #ddd;
+            border-top: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         }
     </style>
     <!-- Assuming you might have a global.css -->
     <link rel="stylesheet" href="global.css">
 </head>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 <body class="bg-white text-dark">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
@@ -83,12 +162,25 @@
             <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
                 <!-- Content will be injected by JS -->
             </ul>
+<<<<<<< HEAD
+=======
+            <div class="px-3">
+                <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
+
+            </div>
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         </div>
     </nav>
 
     <!-- Search Bar -->
     <div class="container my-3 position-relative" style="max-width: 600px; margin:auto;">
+<<<<<<< HEAD
         <input type="text" id="searchBox" class="form-control rounded" placeholder="Search products..." autocomplete="off" />
+=======
+        <input type="text" id="searchBox" class="form-control rounded" placeholder="Search products..."
+            autocomplete="off" />
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         <ul id="suggestionList" class="list-group position-absolute top-100 start-0 rounded"></ul>
     </div>
 
@@ -130,7 +222,10 @@
                         <h5 class="mb-0 text-white">Contact</h5>
                     </a>
                     <p class="mt-2">Email: support@amazonclone.com</p>
+<<<<<<< HEAD
                     <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
+=======
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
                 </div>
             </div>
         </div>
@@ -141,7 +236,11 @@
 
     <script>
         // Backend API base URL - IMPORTANT: Make sure this matches your server.js port
+<<<<<<< HEAD
         const API_BASE_URL = 'http://localhost:5000/api';
+=======
+        const API_BASE_URL = 'https://amazon-clone-fullstack.onrender.com/api';
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
         // DOM elements
         const productGrid = document.getElementById('productGrid');
@@ -370,7 +469,11 @@
                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
                     <li class="nav-item ms-3">
+<<<<<<< HEAD
                         <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+=======
+                        <a href="cart.html" class="btn btn-outline-light position-relative btn-sm rounded">
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
                             Cart
                             <span
                                 id="cart-count"
@@ -379,7 +482,11 @@
                         </a>
                     </li>
                     <li class="nav-item ms-3">
+<<<<<<< HEAD
                         <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
+=======
+                        <button id="logoutBtn" class="btn btn-outline-light btn-sm rounded">Logout</button>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
                     </li>`;
             } else {
                 // Guest user
@@ -388,7 +495,11 @@
                     <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
                     <li class="nav-item ms-3">
+<<<<<<< HEAD
                         <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+=======
+                        <a href="cart.html" class="btn btn-outline-light position-relative btn-sm rounded">
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
                             Cart
                             <span
                                 id="cart-count"
@@ -434,6 +545,7 @@
 
 
         // Mode toggle function (consistent with other pages)
+<<<<<<< HEAD
         let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
         let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
         let current = 0;
@@ -444,6 +556,18 @@
             body.classList.add(classes[current], textColors[current]);
             body.style.backgroundImage = "none";
         }
+=======
+        // let classes = ["bg-white", "bg-dark"];
+        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
+        // let current = 0;
+        // function mode() {
+        //     const body = document.body;
+        //     body.classList.remove(...classes, "text-white", "text-dark");
+        //     current = (current + 1) % classes.length;
+        //     body.classList.add(classes[current], textColors[current]);
+        //     body.style.backgroundImage = "none";
+        // }
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 
         // Search box autocomplete
         searchBox.addEventListener("input", () => {
@@ -494,5 +618,12 @@
             }
         });
     </script>
+<<<<<<< HEAD
 </body>
 </html>
+=======
+    <script src="global.js"></script>
+</body>
+
+</html>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271

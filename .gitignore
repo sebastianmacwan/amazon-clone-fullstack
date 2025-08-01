@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # dependencies
 /node_modules
 
@@ -27,3 +28,7 @@ Thumbs.db
 
 # misc
 .eslintcache
+=======
+node_modules
+.env
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271

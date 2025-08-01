@@ -8,6 +8,22 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="global.css" />
 </head>
+<<<<<<< HEAD
+=======
+<style>.dark-mode .form-control::placeholder {
+      color: #ced4da;
+    }
+
+    .dark-mode .btn-outline-light {
+      color: #f8f9fa !important;
+      border-color: #f8f9fa !important;
+    }
+
+    .dark-mode .btn-outline-light:hover {
+      background-color: #f8f9fa !important;
+      color: #212529 !important;
+    }</style>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 <body>
 
   <!-- Navbar -->
@@ -18,6 +34,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+<<<<<<< HEAD
+=======
+            <button onclick="mode()" class="btn btn-outline-light btn-sm rounded ms-3">mode</button>
+
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
     </div>
   </nav>
 
@@ -97,11 +118,15 @@
         navLinks.innerHTML = `
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+<<<<<<< HEAD
           <li class="nav-item ms-3">
             <a href="cart.html" class="btn btn-outline-light position-relative">
               Cart <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
             </a>
           </li>
+=======
+          
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
           <li class="nav-item ms-3">
             <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
           </li>`;
@@ -160,7 +185,12 @@
       e.preventDefault();
       const user = JSON.parse(localStorage.getItem("currentUser"));
       const newEmail = document.getElementById("newEmail").value;
+<<<<<<< HEAD
       const res = await fetch("http://localhost:5000/api/user/update-email", {
+=======
+    const res = await fetch("https://amazon-clone-fullstack.onrender.com/api/user/update-email", {
+  
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: user.id, newEmail })
@@ -194,5 +224,9 @@
       loadProfile();
     });
   </script>
+<<<<<<< HEAD
+=======
+  <script src="global.js"></script>
+>>>>>>> 1eef0e94866019b3065d0cfbe64fc4c9bc096271
 </body>
 </html>
